@@ -9,6 +9,15 @@ module.exports = (bundleUrl, bundlePath, moduleName, appName, urlParams) => {
 
   UserDefaults.setObjectForKey(params, 'rnplayParams')
   .then(() => {
+    console.log(bundleUrl);
+    bundleUrl = 'http://192.168.255.230:32768/';
+    bundlePath = 'index.ios.bundle';
+    bundlePath += '?platform=ios';
+    moduleName = 'EmployeeDirectory';
+    appName = 'EmployeeDirectory';
+    console.log(bundlePath);
+    console.log(moduleName);
+    console.log(appName);
     AppReloader.reloadAppWithURLString(bundleUrl + bundlePath,
                                        moduleName,
                                        appName);

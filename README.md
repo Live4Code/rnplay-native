@@ -6,25 +6,18 @@ in-browser simulators on the site.
 
 ![](https://raw.githubusercontent.com/rnplay/rnplay-ios/master/screenshot.png)
 
-### Try it out live
-
-[Download the latest release](https://itunes.apple.com/us/app/react-native-playground/id1002032944) from the iTunes Store.
-
-Here are some direct links to apps that are hosted on the web and run
-through [Appetize.io](http://www.appetize.io) in the browser via RNPlay.
-
-- [Oracle (a soup generator,
-  yum)](https://appetize.io/embed/dhw0pbp14v89w60quwrj6w70dg?device=iphone6&scale=100&autoplay=false&orientation=portrait&deviceColor=black&params=%7B%22appId%22:%22yQ2fnQ%22,%22moduleName%22:%22Oracle%22%7D)
-- [Parallax
-  example](https://appetize.io/embed/dhw0pbp14v89w60quwrj6w70dg?device=iphone5s&scale=100&autoplay=false&orientation=portrait&deviceColor=black&params=%7B%22appId%22:%22qAFzcA%22,%22moduleName%22:%22ParallaxExample%22%7D)
-
 ### Setup
 
 - Clone the repo.
-- Run `npm install` in the project directory.
+- `git checkout 319ea05325` (use react native 0.12, the one in master has dependencies issue)
+- Run `npm install` in the project directory. (you may need to use sudo if there are errors)
+- Run `pod install` (need to install cocapod first)
 
 #### iOS
 - Open the `RNPlayNative.xcodeproj` file in XCode.
+- In build settings -> Search Paths -> Header Search Paths, remove all paths not in $SRCROOT
+- Remove Google analytics from library path
+- In General, Remove the last libRCRNPlay.a
 - Set the XCode build target to a plugged-in device.
 - Build the project for use on your phone.
 
