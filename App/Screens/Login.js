@@ -3,12 +3,15 @@
 var React = require('react-native');
 var NavigationBar = require('../Components/NavigationBar');
 var Api = require('../Api/Core');
+var Chef = require('../Api/Chef');
 var Colors = require('../Utilities/Colors');
 var Alert = require('../Components/Alert');
 var Spinner = require('../Components/Spinner');
 var StatusBar = require('../Components/StatusBar');
+var Constants = require('../Constants/StorageConstants');
 
 var {
+  AsyncStorage,
   ActivityIndicatorIOS,
   ScrollView,
   StyleSheet,
@@ -26,8 +29,8 @@ var Login = React.createClass({
     return {
       isLoading: false,
       error: false,
-      email: '',
-      password: '',
+      username: 'meticulous-dft',
+      password: 'toratora',
 
     }
   },
@@ -41,7 +44,7 @@ var Login = React.createClass({
   },
 
   handleSubmit() {
-    if(!this.state.email || !this.state.password) {
+    if(!this.state.username || !this.state.password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -54,28 +57,58 @@ var Login = React.createClass({
     this.setState({ isLoading: true });
 
     var params = {
-      user: {
-        email: this.state.email,
-        password: this.state.password,
-        remember_me: true,
-      }
+      username: this.state.username,
+      password: this.state.password,
+      remember_me: true
     };
 
-    Api.post('/users/sign_in', params)
+    Chef.post('/api/login', params)
       .then((res) => {
         if (res.error) {
           this.setState({
             isLoading: false,
-            email: this.state.email,
+            username: this.state.username,
             password: this.state.password
           });
           Alert.alert('Sign In Failed', res.error);
         } else {
           this.props.updateProfile(res);
           this.setState({ isLoading: false, error: false });
+          this._cacheUserIdentity().done();
           this.props.navigator.replace({ id: 'my_apps' });
         }
     });
+  },
+
+  async _cacheUserIdentity() {
+    try {
+      // store username && password
+      await AsyncStorage.setItem(Constants.USERNAME, this.state.username);
+      await AsyncStorage.setItem(Constants.PASSWORD, this.state.password);
+    } catch (err) {
+      console.log('Can not save user identity. Error is '+err);
+    }
+  },
+
+  async _loginFromCache() {
+    try {
+      var username = await AsyncStorage.getItem(Constants.USERNAME);
+      var password = await AsyncStorage.getItem(Constants.PASSWORD);
+      if (username && password) {
+        this.setState({
+          isLoading: true,
+          username: username,
+          password: password
+        });
+        this.handleSubmit();
+      }
+    } catch (err) {
+      console.log("Fail to retrive user identity from cache. Error is "+err);
+    }
+  },
+
+  componentDidMount() {
+    this._loginFromCache().done();
   },
 
   render() {
@@ -86,14 +119,13 @@ var Login = React.createClass({
         <ScrollView>
           <View style={styles.inputContainer}>
             <TextInput
-              placeholder={"EMAIL"}
-              keyboardType={'email-address'}
+              placeholder={"USERNAME"}
               autoCapitalize={"none"}
               autoCorrect={false}
               returnKeyType={'next'}
               onSubmitEditing={() => this.refs.pwField.focus()}
               style={styles.input}
-              onChangeText={(text) => this.setState({email: text})}
+              onChangeText={(text) => this.setState({username: text})}
             />
           </View>
 

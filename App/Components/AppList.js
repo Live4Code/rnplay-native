@@ -49,6 +49,20 @@ var AppList = React.createClass({
     }
   },
 
+  fetchApps(page = 1, limit = 10) {
+    if (this.props.profile) {
+      var myapps = this.props.profile.apps.slice((page-1)*limit, page * 10);
+      var newData = this.state.data.concat(myapps);
+      this.setState({
+        data: newData,
+        dataSource: this.state.dataSource.cloneWithRows(newData),
+        loaded: true,
+        hasError: false
+      });
+    }
+  },
+
+  /*
   fetchApps(page = 1) {
     if (!this.requestInFlight) {
       this.requestInFlight = true;
@@ -94,7 +108,7 @@ var AppList = React.createClass({
         })
         .done();
     }
-  },
+  }, */
 
   _handleEndReached() {
     var nextPage = this.state.page += 1;
@@ -117,6 +131,8 @@ var AppList = React.createClass({
   },
 
   renderCreator(app) {
+    var profile = this.props.profile;
+    /*
     if (app.creator && !this.props.hideCreator) {
       var avatarUrl = 'https://rnplay.org/' + app.creator.avatar_url + "?v=1";
 
@@ -126,6 +142,16 @@ var AppList = React.createClass({
             <Image style={styles.avatar} source={{uri: avatarUrl}} />
           </View>
           <Text style={styles.username} numberOfLines={1}>{app.creator.username || 'guest'}</Text>
+        </View>
+      )
+    } */
+    if (profile && profile.github) {
+      return (
+        <View style={styles.creator}>
+          <View style={styles.avatarContainer}>
+            <Image style={styles.avatar} source={{uri: profile.github.avatar_url}} />
+          </View>
+          <Text style={styles.username} numberOfLines={1}>{profile.username || 'guest'}</Text>
         </View>
       )
     }
@@ -143,18 +169,19 @@ var AppList = React.createClass({
   },
 
   renderApp(app) {
+    console.log(app);
     return (
         <TouchableHighlight underlayColor={Colors.veryLightGrey} onLongPress={() => this.shareApp(app)}
                                                     onPress={() => this.selectApp(app)}>
           <View style={styles.appContainer}>
             <View style={styles.appTextDescription}>
-              <Text style={styles.appTitle} numberOfLines={1}>{app.name || app.module_name}</Text>
+              <Text style={styles.appTitle} numberOfLines={1}>{app.rnapp.app_name || app.rnapp.module_name}</Text>
               <View style={styles.targetBuild}>
-                <Text style={styles.targetBuildText}>Targets <Text>{app.build_name}</Text></Text>
+                <Text style={styles.targetBuildText}>Targets <Text>{app.rnapp.build_name || 'na'}</Text></Text>
               </View>
 
               <View style={styles.viewCount}>
-                <Text style={styles.viewCountText}>{app.view_count} <Text>views</Text></Text>
+                <Text style={styles.viewCountText}>{app.rnapp.slug}</Text>
               </View>
             </View>
 
@@ -165,8 +192,10 @@ var AppList = React.createClass({
   },
 
   selectApp(app) {
-    Api.post("/apps/"+app.url_token+"/view.json");
-    reloadApp(generateAppURL(app), app.bundle_path, app.module_name, app.name);
+    // Api.post("/apps/"+app.url_token+"/view.json");
+    //reloadApp(generateAppURL(app), app.bundle_path, app.module_name, app.name);
+    var profile = this.props.profile;
+    reloadApp(profile, app);
   },
 
   renderLoading() {

@@ -22,7 +22,7 @@ export function fetchProfile() {
 }
 
 export function updateProfile(data) {
-  return dispatch => {
+  /* return dispatch => {
     AsyncStorage.setItem(PROFILE_KEY, JSON.stringify(data))
       .then(() => {
         dispatch({
@@ -30,7 +30,13 @@ export function updateProfile(data) {
           profile: data
         })
       })
-  }
+  } */
+  return dispatch => {
+    dispatch({
+      type: UPDATE_PROFILE,
+      profile: data
+    });
+  };
 }
 
 export function deleteProfile() {

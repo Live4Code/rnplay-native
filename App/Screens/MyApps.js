@@ -2,8 +2,10 @@
 
 var React = require('react-native');
 var Api = require('../Api/Core');
+var Constants = require('../Constants/StorageConstants');
 
 var {
+  AsyncStorage,
   TouchableOpacity,
   View,
   Platform,
@@ -15,9 +17,20 @@ var StatusBar = require('../Components/StatusBar');
 
 var MyApps = React.createClass({
 
+  async _clearUserIdentity() {
+    try {
+      await AsyncStorage.removeItem(Constants.USERNAME);
+      await AsyncStorage.removeItem(Constants.PASSWORD);
+    } catch (err) {
+      console.log('Can not clear user identity. Error is '+err);
+    }
+  },
+
   _signOut() {
-    Api.delete('/users/sign_out');
+    // Api.delete('/users/sign_out');
     this.props.deleteProfile();
+    // remove user identity from cache
+    this._clearUserIdentity().done();
     this.props.navigator.replace({ id: 'login'});
   },
 
@@ -36,7 +49,6 @@ var MyApps = React.createClass({
 
   render() {
     StatusBar.setStyle('light-content');
-
     return (
       <View style={{flex: 1}}>
         {this._renderIOSNavBar()}
